@@ -46,6 +46,17 @@ export default function NotificationListScreen({componentId}: NotificationListSc
     });
   };
 
+  const openFilterScreen = () => {
+    Navigation.showModal({
+      component: {
+        name: 'FilterScreen',
+        options: {
+          modalPresentationStyle: 'fullScreen' as any,
+        },
+      },
+    });
+  };
+
   const data: ListItemType[] = React.useMemo(() => {
     const items: ListItemType[] = [];
 
@@ -115,7 +126,7 @@ export default function NotificationListScreen({componentId}: NotificationListSc
               </TouchableOpacity>
               
               <TouchableOpacity
-                onPress={() => {/* TODO: Implementar filtros */}}
+                onPress={openFilterScreen}
                 flex
                 center
                 paddingV-s3

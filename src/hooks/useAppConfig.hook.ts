@@ -58,6 +58,22 @@ export default function useAppConfig() {
     }
   }, []);
 
+  const removeAllowedApp = React.useCallback(async (appName: string) => {
+    try {
+      setLoading(true);
+      const currentConfig = await appConfigRepository.getConfig();
+      currentConfig.allowedApps = currentConfig.allowedApps.filter(app => app !== appName);
+      const updatedConfig = await appConfigRepository.update(currentConfig);
+      setConfig(updatedConfig);
+      return updatedConfig;
+    } catch (error) {
+      console.error('Error removing allowed app:', error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   React.useEffect(() => {
     getConfig();
   }, [getConfig]);
@@ -68,5 +84,6 @@ export default function useAppConfig() {
     getConfig,
     updateWebhookUrl,
     addAllowedApp,
+    removeAllowedApp,
   };
 }

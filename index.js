@@ -4,6 +4,7 @@
 
 import NotificationListScreen from './src/screens/NotificationListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import FilterScreen from './src/screens/FilterScreen';
 
 import {Navigation} from 'react-native-navigation';
 import {startHeadlessNotificationListener} from './src/headless/notificationListener';
@@ -12,6 +13,7 @@ import RNAndroidNotificationListener from 'react-native-android-notification-lis
 // Register screens
 Navigation.registerComponent('NotificationListScreen', () => NotificationListScreen);
 Navigation.registerComponent('SettingsScreen', () => SettingsScreen);
+Navigation.registerComponent('FilterScreen', () => FilterScreen);
 
 Navigation.events().registerAppLaunchedListener(() => {
   Navigation.setRoot({

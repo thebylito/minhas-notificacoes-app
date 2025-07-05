@@ -1,97 +1,157 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 📱 Minhas Notificações
 
-# Getting Started
+Um aplicativo React Native moderno para gerenciar e monitorar notificações do sistema, com suporte a webhooks e interface intuitiva.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 🌟 Funcionalidades
 
-## Step 1: Start Metro
+- 📋 **Listagem de Notificações**: Visualize todas as notificações recebidas de forma organizada
+- 🔗 **Webhooks Configuráveis**: Configure URLs de webhook para integração com sistemas externos
+- 📊 **Estatísticas Visuais**: Acompanhe métricas das suas notificações
+- 🎨 **Interface Moderna**: Design clean com React Native UI Lib
+- ⚡ **Performance Otimizada**: Arquitetura com hooks customizados
+- 🔄 **Pull to Refresh**: Atualize suas notificações com gesture nativo
+- 🏷️ **Filtros por App**: Organize notificações por aplicativo de origem
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## 📸 Screenshots
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+<div align="center">
+  <img src="./doc/image.png" alt="Tela Principal" width="300" />
+  <img src="./doc/image2.png" alt="Configurações" width="300" />
+</div>
 
-```sh
-# Using npm
+## 🚀 Tecnologias Utilizadas
+
+- **React Native** 0.80.1
+- **TypeScript** 5.0.4
+- **React Native UI Lib** 7.44.0
+- **React Native Navigation** 8.1.0
+- **AsyncStorage** para persistência local
+- **React Native Android Notification Listener** para captura de notificações
+
+## 📋 Pré-requisitos
+
+> **Nota**: Certifique-se de ter completado o [Guia de Configuração do Ambiente](https://reactnative.dev/docs/set-up-your-environment) antes de prosseguir.
+
+- Node.js >= 18
+- Yarn (recomendado)
+- Android Studio
+
+## 🛠 Instalação
+
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/thebylito/minhas-notificacoes.git
+   cd minhas-notificacoes
+   ```
+
+2. **Instale as dependências**
+   ```bash
+   yarn install
+   # ou
+   npm install
+   ```
+
+## 🚀 Executando o Projeto
+
+### Step 1: Inicie o Metro
+
+Primeiro, você precisa executar o **Metro**, a ferramenta de build JavaScript do React Native.
+
+Para iniciar o servidor de desenvolvimento do Metro, execute o seguinte comando da raiz do projeto:
+
+```bash
+# Usando npm
 npm start
 
-# OR using Yarn
+# OU usando Yarn
 yarn start
 ```
 
-## Step 2: Build and run your app
+### Step 2: Execute o aplicativo
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+Com o Metro executando, abra uma nova aba/janela do terminal da raiz do projeto e use o seguinte comando para construir e executar o app Android:
 
-### Android
-
-```sh
-# Using npm
+```bash
+# Usando npm
 npm run android
 
-# OR using Yarn
+# OU usando Yarn
 yarn android
 ```
 
-### iOS
+Se tudo estiver configurado corretamente, você deve ver o app rodando no Emulador Android ou seu dispositivo conectado.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+## 🔧 Configuração de Permissões
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+Para que o aplicativo funcione corretamente no Android, você precisa conceder a permissão de "Acesso às Notificações":
 
-```sh
-bundle install
-```
+1. Abra **Configurações** do Android
+2. Vá para **Apps** > **Minhas Notificações**
+3. Toque em **Permissões**
+4. Ative **Acesso às Notificações**
 
-Then, and every time you update your native dependencies, run:
+## 📝 Como Usar
 
-```sh
-bundle exec pod install
-```
+1. **Configurar Webhook**: Na seção de configurações, adicione a URL do seu webhook
+2. **Receber Notificações**: O app captura automaticamente as notificações do sistema
+3. **Enviar para Webhook**: Toque em uma notificação para enviá-la ao webhook configurado
+4. **Monitorar Estatísticas**: Acompanhe métricas na seção de estatísticas
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 🏗 Arquitetura
 
-```sh
-# Using npm
-npm run ios
+O projeto segue uma arquitetura moderna com:
 
-# OR using Yarn
-yarn ios
-```
+- **Hooks Customizados**: `useNotifications` e `useAppConfig` para gerenciamento de estado
+- **Componentes Reutilizáveis**: Cards, listas e formulários modulares
+- **Repositórios**: Camada de persistência com AsyncStorage
+- **Tipagem Forte**: TypeScript em todo o projeto
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 🎯 Próximos Passos
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+Agora que você executou com sucesso o app, algumas sugestões:
 
-## Step 3: Modify your app
+- **Personalize**: Modifique `src/App.tsx` e veja as mudanças em tempo real
+- **Configure Webhooks**: Teste a integração com serviços externos
+- **Explore Componentes**: Veja os componentes modulares em `src/components/`
 
-Now that you have successfully run the app, let's make changes!
+### ⚡ Hot Reload
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+Quando você salvar arquivos, o app será atualizado automaticamente - isso é o poder do [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+Para forçar um reload completo:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+- **Android**: Pressione <kbd>R</kbd> duas vezes ou selecione **"Reload"** do **Dev Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> no Windows/Linux ou <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> no macOS)
 
-## Congratulations! :tada:
+## 🤝 Contribuindo
 
-You've successfully run and modified your React Native App. :partying_face:
+Contribuições são sempre bem-vindas! Sinta-se à vontade para:
 
-### Now what?
+1. Fazer fork do projeto
+2. Criar uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abrir um Pull Request
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+## 📄 Licença
 
-# Troubleshooting
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## 🔧 Solução de Problemas
 
-# Learn More
+Se você está tendo problemas para executar os passos acima, consulte a página de [Troubleshooting](https://reactnative.dev/docs/troubleshooting) do React Native.
 
-To learn more about React Native, take a look at the following resources:
+## 📚 Saiba Mais
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Para aprender mais sobre React Native, confira os seguintes recursos:
+
+- [Site do React Native](https://reactnative.dev) - aprenda mais sobre React Native
+- [Primeiros Passos](https://reactnative.dev/docs/environment-setup) - uma **visão geral** do React Native e como configurar seu ambiente
+- [Aprenda o Básico](https://reactnative.dev/docs/getting-started) - um **tour guiado** pelos **conceitos básicos** do React Native
+- [Blog](https://reactnative.dev/blog) - leia os últimos posts oficiais do **Blog** do React Native
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - o repositório **GitHub** de código aberto do React Native
+
+---
+
+<div align="center">
+  Feito com ❤️ por <a href="https://github.com/thebylito">@thebylito</a>
+</div>

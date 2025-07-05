@@ -1,0 +1,127 @@
+diff --git a/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/options/params/ReactPlatformColor.kt b/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/options/params/ReactPlatformColor.kt
+index 5850dc0..ea12b64 100644
+--- a/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/options/params/ReactPlatformColor.kt
++++ b/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/options/params/ReactPlatformColor.kt
+@@ -4,20 +4,22 @@ import com.facebook.react.bridge.ColorPropConverter
+ import com.facebook.react.bridge.ReadableMap
+ import com.reactnativenavigation.NavigationApplication
+ 
+-private fun parsePlatformColor(paths: ReadableMap) =
+-    ColorPropConverter.getColor(paths, NavigationApplication.instance)
++private fun parsePlatformColor(paths: ReadableMap): Int {
++    return ColorPropConverter.getColor(paths, NavigationApplication.instance) ?: 0 // fallback to black
++}
+ 
+ class ReactPlatformColor(private val paths: ReadableMap) :
+     Colour(parsePlatformColor(paths)) {
++
+     override fun get(): Int {
+         return parsePlatformColor(paths)
+     }
+ 
+-    override fun get(defaultValue: Int?): Int? {
++    override fun get(defaultValue: Int?): Int {
+         return try {
+-            parsePlatformColor(paths)
+-        }catch (e:Exception){
+-            defaultValue
++            ColorPropConverter.getColor(paths, NavigationApplication.instance) ?: defaultValue ?: 0
++        } catch (e: Exception) {
++            defaultValue ?: 0
+         }
+     }
+ }
+\ No newline at end of file
+diff --git a/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/options/parsers/ColorParser.kt b/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/options/parsers/ColorParser.kt
+index 857af34..1e3d58d 100644
+--- a/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/options/parsers/ColorParser.kt
++++ b/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/options/parsers/ColorParser.kt
+@@ -1,5 +1,4 @@
+ package com.reactnativenavigation.options.parsers
+-
+ import android.content.Context
+ import com.facebook.react.bridge.ColorPropConverter
+ import com.reactnativenavigation.options.params.Colour
+@@ -18,21 +17,14 @@ object ColorParser {
+             return ReactPlatformColor(JSONParser.convert(json))
+         }
+         return when (val color = json.opt(colorName)) {
+-            null, VAL_NO_COLOR -> {
+-                DontApplyColour()
+-            }
+-            is Int -> {
+-                Colour(json.optInt(colorName))
+-            }
++            null, VAL_NO_COLOR -> DontApplyColour()
++            is Int -> Colour(json.optInt(colorName))
+             is JSONObject -> {
+-                ColorPropConverter.getColor(color, context)?.let {
++                ColorPropConverter.getColor(color, context ?: throw IllegalArgumentException("Context must not be null"))?.let {
+                     Colour(it)
+                 } ?: NullColor()
+             }
+-            else -> {
+-                NullColor()
+-            }
++            else -> NullColor()
+         }
+-
+     }
+ }
+\ No newline at end of file
+diff --git a/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/react/modal/ModalContentLayout.kt b/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/react/modal/ModalContentLayout.kt
+index 1d877a9..0af4b31 100644
+--- a/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/react/modal/ModalContentLayout.kt
++++ b/node_modules/react-native-navigation/lib/android/app/src/main/java/com/reactnativenavigation/react/modal/ModalContentLayout.kt
+@@ -12,27 +12,30 @@ import com.facebook.react.uimanager.events.EventDispatcher
+ import com.facebook.react.views.view.ReactViewGroup
+ 
+ 
+-class ModalContentLayout(context: Context?) : ReactViewGroup(context), RootView{
++class ModalContentLayout(context: Context) : ReactViewGroup(context), RootView {
+ 
+     private val mJSTouchDispatcher = JSTouchDispatcher(this)
+ 
+-    override fun onChildStartedNativeGesture(child: View, androidEvent: MotionEvent) {
+-        mJSTouchDispatcher.onChildStartedNativeGesture(androidEvent, this.getEventDispatcher())
++    override fun onChildStartedNativeGesture(childView: View?, ev: MotionEvent) {
++        mJSTouchDispatcher.onChildStartedNativeGesture(ev, getEventDispatcher())
+     }
+-    override fun onChildStartedNativeGesture(androidEvent: MotionEvent) {
+-        mJSTouchDispatcher.onChildStartedNativeGesture(androidEvent, this.getEventDispatcher())
+-    }
+-    override fun onChildEndedNativeGesture(child: View, androidEvent: MotionEvent) {
+-        mJSTouchDispatcher.onChildEndedNativeGesture(androidEvent, this.getEventDispatcher())
++
++    override fun onChildEndedNativeGesture(childView: View, ev: MotionEvent) {
++        mJSTouchDispatcher.onChildEndedNativeGesture(ev, getEventDispatcher())
+     }
++
++    override fun handleException(t: Throwable) {
++    getReactContext().handleException(
++        if (t is Exception) t else RuntimeException(t)
++    )
++}
++
+     override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+-    private fun getEventDispatcher(): EventDispatcher {
+-        val reactContext: ReactContext = this.getReactContext()
+-        return UIManagerHelper.getEventDispatcher(reactContext, UIManagerType.FABRIC) ?: throw IllegalStateException("EventDispatcher for Fabric UI Manager is not found")
+-    }
+ 
+-    override fun handleException(t: Throwable?) {
+-        getReactContext().handleException(RuntimeException(t))
++    private fun getEventDispatcher(): EventDispatcher {
++        val reactContext: ReactContext = getReactContext()
++        return UIManagerHelper.getEventDispatcher(reactContext, UIManagerType.FABRIC)
++            ?: throw IllegalStateException("EventDispatcher for Fabric UI Manager is not found")
+     }
+ 
+     private fun getReactContext(): ReactContext {
+@@ -49,5 +52,4 @@ class ModalContentLayout(context: Context?) : ReactViewGroup(context), RootView{
+         super.onTouchEvent(event)
+         return true
+     }
+-
+ }
+\ No newline at end of file

@@ -2,12 +2,11 @@
  * @format
  */
 
-import { AppRegistry } from 'react-native';
 import App from './src/App';
-import { name as appName } from './app.json';
 
-import { Navigation } from 'react-native-navigation';
-import { startHeadlessNotificationListener } from './src/headless/notificationListener';
+import {Navigation} from 'react-native-navigation';
+import {startHeadlessNotificationListener} from './src/headless/notificationListener';
+import RNAndroidNotificationListener from 'react-native-android-notification-listener';
 
 Navigation.registerComponent('com.myApp.WelcomeScreen', () => App);
 
@@ -32,22 +31,31 @@ Navigation.events().registerAppLaunchedListener(() => {
   });
 });
 
-// import RNAndroidNotificationListener, {
-//   RNAndroidNotificationListenerHeadlessJsName,
-// } from 'react-native-android-notification-listener';
-// import { startHeadlessNotificationListener } from './src/headless/notificationListener';
-
-// // To check if the user has permission
-// RNAndroidNotificationListener.getPermissionStatus()
-//   .then(status => {
-//     // Handle the status here
-//     console.log('Notification permission status:', status);
-//   })
-//   .catch(error => {
-//     // Handle the error here
-//     console.error('Error getting notification permission status:', error);
-//   });
-// //console.log(status); // Result can be 'authorized', 'denied' or 'unknown'
-
-startHeadlessNotificationListener();
-// console.log('Headless notification listener started');
+// To check if the user has permission
+RNAndroidNotificationListener.getPermissionStatus()
+  .then(status => {
+    // Handle the status here
+    console.log('Notification permission status:', status);
+    if (status === 'denied') {
+      RNAndroidNotificationListener.requestPermission();
+      console.warn(
+        'Notification permission denied. Please enable it in settings.',
+      );
+      return;
+    }
+    if (status === 'unknown') {
+      RNAndroidNotificationListener.requestPermission();
+      console.warn(
+        'Notification permission status is unknown. Please check your settings.',
+      );
+      return;
+    }
+    if (status === 'authorized') {
+      startHeadlessNotificationListener();
+    }
+  })
+  .catch(error => {
+    // Handle the error here
+    console.error('Error getting notification permission status:', error);
+  });
+//console.log(status); // Result can be 'authorized', 'denied' or 'unknown'

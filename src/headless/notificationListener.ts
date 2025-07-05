@@ -1,8 +1,11 @@
-import { AppRegistry } from 'react-native';
-import { RNAndroidNotificationListenerHeadlessJsName } from 'react-native-android-notification-listener';
+import {AppRegistry} from 'react-native';
+import {RNAndroidNotificationListenerHeadlessJsName} from 'react-native-android-notification-listener';
 import AppConfigRepository from '../repositories/appConfig.repository';
-import { NotificationModel, NotificationRepository } from '../repositories/notification.repository';
-import { WebhookService } from '../services/webhook.service';
+import {
+  NotificationModel,
+  NotificationRepository,
+} from '../repositories/notification.repository';
+import {WebhookService} from '../services/webhook.service';
 
 interface IHeadlessNotification {
   time: string;
@@ -46,7 +49,9 @@ const headlessNotificationListener = async ({
       return;
     }
 
-    const createdNotification = await notificationRepository.create(new NotificationModel(notification));
+    const createdNotification = await notificationRepository.create(
+      new NotificationModel(notification),
+    );
     if (appConfig.webhookUrl) {
       const webhookService = new WebhookService(appConfig.webhookUrl);
       await createdNotification.emitToWebhook(webhookService);

@@ -24,6 +24,7 @@ interface IHeadlessNotification {
     text: string;
   }>;
   icon: string; // base64
+  iconLarge?: string; // base64 large icon
   image: string; // base64
 }
 

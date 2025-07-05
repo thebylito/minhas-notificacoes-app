@@ -11,6 +11,8 @@ export interface INotification {
   titleBig: string;
   extraInfoText: string; // Additional information about the notification
   icon?: string; // Base64 icon data (only used during creation/update)
+  iconLarge?: string; // Base64 large icon data (only used during creation/update)
+  image?: string; // Base64 image data (only used during creation/update)
   groupedMessages?: Array<{text: string; title: string}>; // Grouped messages array
 
   hasSentToWebhook?: boolean; // Indicates if the notification has been sent to the webhook
@@ -25,6 +27,8 @@ export class NotificationModel implements INotification {
   public titleBig!: string;
   public extraInfoText!: string; // Additional information about the notification
   public icon?: string; // Base64 icon data (only used during creation/update)
+  public iconLarge?: string; // Base64 large icon data (only used during creation/update)
+  public image?: string; // Base64 image data (only used during creation/update)
   public groupedMessages?: Array<{text: string; title: string}>; // Grouped messages array
   public hasSentToWebhook?: boolean = false; // Default value
 
@@ -92,9 +96,9 @@ export class NotificationRepository extends BaseRepository<NotificationModel> {
         }
       }
 
-      // Create notification without icon in storage
-      const notificationToSave = { ...notification };
-      delete notificationToSave.icon; // Don't save base64 in AsyncStorage
+      // Create notification without base64 data in storage
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { icon, iconLarge, image, ...notificationToSave } = notification;
       
       const notificationModel = new NotificationModel(notificationToSave);
       const createdNotification = await super.create(notificationModel);
@@ -106,6 +110,26 @@ export class NotificationRepository extends BaseRepository<NotificationModel> {
         } catch (iconError) {
           console.error('Error saving notification icon:', iconError);
           // Don't fail the notification creation if icon saving fails
+        }
+      }
+
+      // Save large icon separately if provided
+      if (notification.iconLarge && createdNotification._id) {
+        try {
+          await IconStorageService.saveIcon(`${createdNotification._id}_large`, notification.iconLarge);
+        } catch (iconError) {
+          console.error('Error saving notification large icon:', iconError);
+          // Don't fail the notification creation if large icon saving fails
+        }
+      }
+
+      // Save image separately if provided
+      if (notification.image && createdNotification._id) {
+        try {
+          await IconStorageService.saveIcon(`${createdNotification._id}_image`, notification.image);
+        } catch (iconError) {
+          console.error('Error saving notification image:', iconError);
+          // Don't fail the notification creation if image saving fails
         }
       }
 
@@ -123,9 +147,9 @@ export class NotificationRepository extends BaseRepository<NotificationModel> {
    */
   async update(notification: NotificationModel): Promise<NotificationModel> {
     try {
-      // Update notification without icon in storage
-      const notificationToSave = { ...notification };
-      delete notificationToSave.icon; // Don't save base64 in AsyncStorage
+      // Update notification without base64 data in storage
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { icon, iconLarge, image, ...notificationToSave } = notification;
       
       const notificationModel = new NotificationModel(notificationToSave);
       const updatedNotification = await super.update(notificationModel);
@@ -137,6 +161,26 @@ export class NotificationRepository extends BaseRepository<NotificationModel> {
         } catch (iconError) {
           console.error('Error updating notification icon:', iconError);
           // Don't fail the notification update if icon saving fails
+        }
+      }
+
+      // Update large icon if provided
+      if (notification.iconLarge && notification._id) {
+        try {
+          await IconStorageService.saveIcon(`${notification._id}_large`, notification.iconLarge);
+        } catch (iconError) {
+          console.error('Error updating notification large icon:', iconError);
+          // Don't fail the notification update if large icon saving fails
+        }
+      }
+
+      // Update image if provided
+      if (notification.image && notification._id) {
+        try {
+          await IconStorageService.saveIcon(`${notification._id}_image`, notification.image);
+        } catch (iconError) {
+          console.error('Error updating notification image:', iconError);
+          // Don't fail the notification update if image saving fails
         }
       }
 
@@ -162,6 +206,22 @@ export class NotificationRepository extends BaseRepository<NotificationModel> {
       } catch (iconError) {
         console.error('Error deleting notification icon:', iconError);
         // Don't fail the notification deletion if icon deletion fails
+      }
+
+      // Delete the associated large icon
+      try {
+        await IconStorageService.deleteIcon(`${id}_large`);
+      } catch (iconError) {
+        console.error('Error deleting notification large icon:', iconError);
+        // Don't fail the notification deletion if large icon deletion fails
+      }
+
+      // Delete the associated image
+      try {
+        await IconStorageService.deleteIcon(`${id}_image`);
+      } catch (iconError) {
+        console.error('Error deleting notification image:', iconError);
+        // Don't fail the notification deletion if image deletion fails
       }
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -222,6 +282,78 @@ export class NotificationRepository extends BaseRepository<NotificationModel> {
       return await IconStorageService.hasIcon(notificationId);
     } catch (error) {
       console.error('Error checking if notification has icon:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Gets the large icon path for a notification
+   * @param notificationId The notification ID
+   * @returns The large icon file path or null if not found
+   */
+  async getLargeIconPath(notificationId: string): Promise<string | null> {
+    try {
+      // Try standard method first
+      let iconPath = await IconStorageService.getIconPath(`${notificationId}_large`);
+      
+      // If that fails, try alternative method (no file:// prefix)
+      if (!iconPath) {
+        iconPath = await IconStorageService.getIconPathAlternative(`${notificationId}_large`);
+      }
+      
+      return iconPath;
+    } catch (error) {
+      console.error('Error getting large icon path:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Checks if a notification has a large icon
+   * @param notificationId The notification ID
+   * @returns True if large icon exists, false otherwise
+   */
+  async hasLargeIcon(notificationId: string): Promise<boolean> {
+    try {
+      return await IconStorageService.hasIcon(`${notificationId}_large`);
+    } catch (error) {
+      console.error('Error checking if notification has large icon:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Gets the image path for a notification
+   * @param notificationId The notification ID
+   * @returns The image file path or null if not found
+   */
+  async getImagePath(notificationId: string): Promise<string | null> {
+    try {
+      // Try standard method first
+      let imagePath = await IconStorageService.getIconPath(`${notificationId}_image`);
+      
+      // If that fails, try alternative method (no file:// prefix)
+      if (!imagePath) {
+        imagePath = await IconStorageService.getIconPathAlternative(`${notificationId}_image`);
+      }
+      
+      return imagePath;
+    } catch (error) {
+      console.error('Error getting image path:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Checks if a notification has an image
+   * @param notificationId The notification ID
+   * @returns True if image exists, false otherwise
+   */
+  async hasImage(notificationId: string): Promise<boolean> {
+    try {
+      return await IconStorageService.hasIcon(`${notificationId}_image`);
+    } catch (error) {
+      console.error('Error checking if notification has image:', error);
       return false;
     }
   }

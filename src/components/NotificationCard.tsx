@@ -1,6 +1,16 @@
 import React from 'react';
-import {View, Text, Card, Badge, TouchableOpacity} from 'react-native-ui-lib';
-import {NotificationModel} from '../repositories/notification.repository';
+import {
+  View,
+  Text,
+  Card,
+  Badge,
+  TouchableOpacity,
+  Image,
+} from 'react-native-ui-lib';
+import {
+  NotificationModel,
+  NotificationRepository,
+} from '../repositories/notification.repository';
 
 interface NotificationCardProps {
   notification: NotificationModel;
@@ -13,6 +23,22 @@ export default function NotificationCard({
   onPress,
   onDelete,
 }: NotificationCardProps) {
+  const [iconPath, setIconPath] = React.useState<string | null>(null);
+  const notificationRepository = React.useMemo(
+    () => new NotificationRepository(),
+    [],
+  );
+
+  // Load icon path when component mounts or notification changes
+  React.useEffect(() => {
+    const loadIcon = async () => {
+      if (notification._id) {
+        const path = await notificationRepository.getIconPath(notification._id);
+        setIconPath(path);
+      }
+    };
+    loadIcon();
+  }, [notification._id, notificationRepository]);
   const formatTime = (timeString: string) => {
     try {
       const date = new Date(Number(timeString));
@@ -39,14 +65,30 @@ export default function NotificationCard({
         marginV-s2
         marginH-s3
         enableShadow
-        borderRadius={12}
+        borderRadius={6}
         backgroundColor={notification.hasSentToWebhook ? '#f0f9f0' : '#ffffff'}>
         <View row spread centerV marginB-s2>
           <View row centerV>
+            {iconPath && (
+              <View
+                backgroundColor="#6366f1"
+                center
+                marginR-s1
+                padding-s1
+                style={{borderRadius: 6}}>
+                <Image
+                  width={20}
+                  height={20}
+                  source={{uri: iconPath}}
+                  resizeMode="contain"
+                />
+              </View>
+            )}
             <Badge
               label={notification.app}
               size={18}
               backgroundColor="#6366f1"
+              borderRadius={6}
             />
             {notification.hasSentToWebhook && (
               <Badge
@@ -61,7 +103,7 @@ export default function NotificationCard({
             <Text text90 grey40 marginR-s2>
               {formatTime(notification.time)}
             </Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleDelete}
               padding-s1
               style={{
@@ -71,9 +113,10 @@ export default function NotificationCard({
                 minHeight: 24,
                 justifyContent: 'center',
                 alignItems: 'center',
-              }}
-            >
-              <Text text100 white>✕</Text>
+              }}>
+              <Text text100 white>
+                X
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -94,7 +137,7 @@ export default function NotificationCard({
             {notification.text}
           </Text>
         )}
-        
+
         {notification.extraInfoText && (
           <Text text90 grey30 numberOfLines={3}>
             {notification.extraInfoText}

@@ -17,6 +17,7 @@ class AppConfigModel implements IAppConfig {
 
   public isAppAllowed(appName: string): boolean {
     const defaultBlockedApps = [
+      'android',
       'com.google.android.gm',
       'com.android.phone',
       'com.android.systemui'

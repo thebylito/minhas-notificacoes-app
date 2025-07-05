@@ -24,6 +24,7 @@ export default function NotificationCard({
   onDelete,
 }: NotificationCardProps) {
   const [iconPath, setIconPath] = React.useState<string | null>(null);
+  const [isGroupedMessagesExpanded, setIsGroupedMessagesExpanded] = React.useState(false);
   const notificationRepository = React.useMemo(
     () => new NotificationRepository(),
     [],
@@ -142,6 +143,60 @@ export default function NotificationCard({
           <Text text90 grey30 numberOfLines={3}>
             {notification.extraInfoText}
           </Text>
+        )}
+
+        {notification.groupedMessages && notification.groupedMessages.length > 0 && (
+          <View marginT-s2>
+            <View row centerV marginB-s1>
+              <Text text80 grey20>
+                Mensagens Agrupadas
+              </Text>
+              <View 
+                backgroundColor="#6366f1"
+                paddingH-s1
+                paddingV-1
+                marginL-s1
+                style={{borderRadius: 10}}
+              >
+                <Text text100 white>
+                  {notification.groupedMessages.length}
+                </Text>
+              </View>
+            </View>
+            <View backgroundColor="#f8fafc" padding-s2 style={{borderRadius: 6}}>
+              {(isGroupedMessagesExpanded 
+                ? notification.groupedMessages 
+                : notification.groupedMessages.slice(0, 3)
+              ).map((message, index) => (
+                <View key={index} marginB-s1 row>
+                  <Text text90 grey20 marginR-s1>•</Text>
+                  <View flex>
+                    <Text text90 grey10 numberOfLines={2}>
+                      <Text text90 grey20>{message.title}: </Text>
+                      {message.text}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+              {notification.groupedMessages.length > 3 && (
+                <TouchableOpacity 
+                  onPress={() => setIsGroupedMessagesExpanded(!isGroupedMessagesExpanded)}
+                  marginT-s1
+                  padding-s1
+                  activeOpacity={0.7}
+                >
+                  <View row centerV spread>
+                    <Text text90 color="#6366f1" style={{fontWeight: '500'}}>
+                      {isGroupedMessagesExpanded 
+                        ? "↑ Mostrar menos" 
+                        : `↓ Ver mais ${notification.groupedMessages.length - 3} mensagens`
+                      }
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
         )}
 
         <View row centerV marginT-s2>

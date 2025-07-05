@@ -11,6 +11,7 @@ export interface INotification {
   titleBig: string;
   extraInfoText: string; // Additional information about the notification
   icon?: string; // Base64 icon data (only used during creation/update)
+  groupedMessages?: Array<{text: string; title: string}>; // Grouped messages array
 
   hasSentToWebhook?: boolean; // Indicates if the notification has been sent to the webhook
 }
@@ -24,6 +25,7 @@ export class NotificationModel implements INotification {
   public titleBig!: string;
   public extraInfoText!: string; // Additional information about the notification
   public icon?: string; // Base64 icon data (only used during creation/update)
+  public groupedMessages?: Array<{text: string; title: string}>; // Grouped messages array
   public hasSentToWebhook?: boolean = false; // Default value
 
   constructor(notification: INotification) {

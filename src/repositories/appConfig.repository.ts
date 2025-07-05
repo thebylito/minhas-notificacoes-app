@@ -20,7 +20,8 @@ class AppConfigModel implements IAppConfig {
       'android',
       'com.google.android.gm',
       'com.android.phone',
-      'com.android.systemui'
+      'com.android.systemui',
+      "com.samsung.android.incallui",
     ]
     if (defaultBlockedApps.includes(appName.toLowerCase())) {
       return false; // Block default apps

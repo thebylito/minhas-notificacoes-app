@@ -1,5 +1,5 @@
-import {BaseRepository} from '../repository/baseRepository';
-import {WebhookService} from '../services/webhook.service';
+import { BaseRepository } from '../repository/baseRepository';
+import { WebhookService } from '../services/webhook.service';
 
 export interface INotification {
   _id?: string; // Optional ID for internal use
@@ -8,6 +8,7 @@ export interface INotification {
   title: string;
   text: string;
   titleBig: string;
+  extraInfoText: string; // Additional information about the notification
 
   hasSentToWebhook?: boolean; // Indicates if the notification has been sent to the webhook
 }
@@ -19,6 +20,7 @@ export class NotificationModel implements INotification {
   public title!: string;
   public text!: string;
   public titleBig!: string;
+  public extraInfoText!: string; // Additional information about the notification
   public hasSentToWebhook?: boolean = false; // Default value
 
   constructor(notification: INotification) {

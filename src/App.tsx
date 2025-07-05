@@ -23,6 +23,7 @@ export default function App() {
     refreshing,
     refreshNotifications,
     clearNotifications,
+    deleteNotification,
     sendWebhook,
   } = useNotifications();
 
@@ -65,7 +66,11 @@ export default function App() {
 
       case 'notification':
         return (
-          <NotificationCard notification={item.data} onPress={sendWebhook} />
+          <NotificationCard 
+            notification={item.data} 
+            onPress={sendWebhook}
+            onDelete={deleteNotification}
+          />
         );
 
       case 'empty':

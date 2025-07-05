@@ -5,11 +5,13 @@ import {NotificationModel} from '../repositories/notification.repository';
 interface NotificationCardProps {
   notification: NotificationModel;
   onPress: (notification: NotificationModel) => void;
+  onDelete: (notification: NotificationModel) => void;
 }
 
 export default function NotificationCard({
   notification,
   onPress,
+  onDelete,
 }: NotificationCardProps) {
   const formatTime = (timeString: string) => {
     try {
@@ -24,6 +26,10 @@ export default function NotificationCard({
     } catch {
       return timeString;
     }
+  };
+
+  const handleDelete = () => {
+    onDelete(notification);
   };
 
   return (
@@ -51,9 +57,25 @@ export default function NotificationCard({
               />
             )}
           </View>
-          <Text text90 grey40>
-            {formatTime(notification.time)}
-          </Text>
+          <View row centerV>
+            <Text text90 grey40 marginR-s2>
+              {formatTime(notification.time)}
+            </Text>
+            <TouchableOpacity 
+              onPress={handleDelete}
+              padding-s1
+              style={{
+                backgroundColor: '#ef4444',
+                borderRadius: 6,
+                minWidth: 24,
+                minHeight: 24,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text text100 white>✕</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <Text text70 grey10 numberOfLines={2} marginB-s1>
@@ -70,6 +92,12 @@ export default function NotificationCard({
         {notification.text && (
           <Text text90 grey30 numberOfLines={3}>
             {notification.text}
+          </Text>
+        )}
+        
+        {notification.extraInfoText && (
+          <Text text90 grey30 numberOfLines={3}>
+            {notification.extraInfoText}
           </Text>
         )}
 

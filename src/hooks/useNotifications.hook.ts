@@ -49,6 +49,17 @@ export default function useNotifications() {
     }
   }, [getNotifications]);
 
+  const deleteNotification = React.useCallback(async (notification: NotificationModel) => {
+    try {
+      if (notification._id) {
+        await notificationRepository.deleteById(notification._id);
+        await getNotifications();
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  }, [getNotifications]);
+
   const sendWebhook = React.useCallback(async (notification: NotificationModel) => {
     try {
       const appConfig = await appConfigRepository.getConfig();
@@ -74,6 +85,7 @@ export default function useNotifications() {
     getNotifications,
     refreshNotifications,
     clearNotifications,
+    deleteNotification,
     sendWebhook,
   };
 }

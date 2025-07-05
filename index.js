@@ -2,13 +2,16 @@
  * @format
  */
 
-import App from './src/App';
+import NotificationListScreen from './src/screens/NotificationListScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 import {Navigation} from 'react-native-navigation';
 import {startHeadlessNotificationListener} from './src/headless/notificationListener';
 import RNAndroidNotificationListener from 'react-native-android-notification-listener';
 
-Navigation.registerComponent('com.myApp.WelcomeScreen', () => App);
+// Register screens
+Navigation.registerComponent('NotificationListScreen', () => NotificationListScreen);
+Navigation.registerComponent('SettingsScreen', () => SettingsScreen);
 
 Navigation.events().registerAppLaunchedListener(() => {
   Navigation.setRoot({
@@ -22,7 +25,7 @@ Navigation.events().registerAppLaunchedListener(() => {
         children: [
           {
             component: {
-              name: 'com.myApp.WelcomeScreen',
+              name: 'NotificationListScreen',
             },
           },
         ],

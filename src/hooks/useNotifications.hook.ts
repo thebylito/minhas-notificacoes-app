@@ -5,11 +5,8 @@ import {
   NotificationModel,
   NotificationRepository,
 } from '../repositories/notification.repository';
-import { WebhookService } from '../services/webhook.service';
-import AppConfigRepository from '../repositories/appConfig.repository';
 
 const notificationRepository = new NotificationRepository();
-const appConfigRepository = new AppConfigRepository();
 
 export default function useNotifications() {
   const [notifications, setNotifications] = React.useState<NotificationModel[]>([]);
@@ -60,20 +57,6 @@ export default function useNotifications() {
     }
   }, [getNotifications]);
 
-  const sendWebhook = React.useCallback(async (notification: NotificationModel) => {
-    try {
-      const appConfig = await appConfigRepository.getConfig();
-      if (appConfig.webhookUrl) {
-        const webhookService = new WebhookService(appConfig.webhookUrl);
-        await notification.emitToWebhook(webhookService);
-        await notificationRepository.update(notification);
-        await getNotifications();
-      }
-    } catch (error) {
-      console.error('Error sending webhook:', error);
-    }
-  }, [getNotifications]);
-
   React.useEffect(() => {
     getNotifications();
   }, [getNotifications]);
@@ -86,6 +69,5 @@ export default function useNotifications() {
     refreshNotifications,
     clearNotifications,
     deleteNotification,
-    sendWebhook,
   };
 }

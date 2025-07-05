@@ -11,20 +11,21 @@ import {
   NotificationModel,
   NotificationRepository,
 } from '../repositories/notification.repository';
+import { WebhookService } from '../services/webhook.service';
+import useAppConfig from '../hooks/useAppConfig.hook';
 
 interface NotificationCardProps {
   notification: NotificationModel;
-  onPress: (notification: NotificationModel) => void;
   onDelete: (notification: NotificationModel) => void;
 }
 
 export default function NotificationCard({
   notification,
-  onPress,
   onDelete,
 }: NotificationCardProps) {
   const [iconPath, setIconPath] = React.useState<string | null>(null);
   const [isGroupedMessagesExpanded, setIsGroupedMessagesExpanded] = React.useState(false);
+  const { config } = useAppConfig();
   const notificationRepository = React.useMemo(
     () => new NotificationRepository(),
     [],
@@ -40,6 +41,23 @@ export default function NotificationCard({
     };
     loadIcon();
   }, [notification._id, notificationRepository]);
+
+  const handleSendWebhook = async () => {
+    try {
+      if (!config?.webhookUrl) {
+        console.warn('Webhook URL não configurada');
+        return;
+      }
+      
+      const webhookService = new WebhookService(config.webhookUrl);
+      await notification.emitToWebhook(webhookService);
+      
+      // Atualizar a notificação no repository
+      await notificationRepository.update(notification);
+    } catch (error) {
+      console.error('Erro ao enviar webhook:', error);
+    }
+  };
   const formatTime = (timeString: string) => {
     try {
       const date = new Date(Number(timeString));
@@ -60,26 +78,27 @@ export default function NotificationCard({
   };
 
   return (
-    <TouchableOpacity activeOpacity={0.9} onPress={() => onPress(notification)}>
-      <Card
-        padding-s4
-        marginV-s2
-        marginH-s3
-        enableShadow
-        borderRadius={6}
-        backgroundColor={notification.hasSentToWebhook ? '#f0f9f0' : '#ffffff'}>
-        <View row spread centerV marginB-s2>
-          <View row centerV>
+    <Card
+      padding-s4
+      marginV-s2
+      marginH-s3
+      enableShadow
+      borderRadius={6}
+      backgroundColor={notification.hasSentToWebhook ? '#f0f9f0' : '#ffffff'}>
+        <View row centerV spread marginB-s2>
+          <View row centerV flex>
             {iconPath && (
               <View
                 backgroundColor="#6366f1"
                 center
                 marginR-s1
                 padding-s1
+                width={28}
+                height={28}
                 style={{borderRadius: 6}}>
                 <Image
-                  width={20}
-                  height={20}
+                  width={16}
+                  height={16}
                   source={{uri: iconPath}}
                   resizeMode="contain"
                 />
@@ -91,35 +110,14 @@ export default function NotificationCard({
               backgroundColor="#6366f1"
               borderRadius={6}
             />
-            {notification.hasSentToWebhook && (
-              <Badge
-                label="Enviado"
-                size={16}
-                backgroundColor="#10b981"
-                marginL-s2
-              />
-            )}
           </View>
-          <View row centerV>
-            <Text text90 grey40 marginR-s2>
-              {formatTime(notification.time)}
-            </Text>
-            <TouchableOpacity
-              onPress={handleDelete}
-              padding-s1
-              style={{
-                backgroundColor: '#ef4444',
-                borderRadius: 6,
-                minWidth: 24,
-                minHeight: 24,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Text text100 white>
-                X
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {notification.hasSentToWebhook && (
+            <Badge
+              label="Enviado"
+              size={16}
+              backgroundColor="#10b981"
+            />
+          )}
         </View>
 
         <Text text70 grey10 numberOfLines={2} marginB-s1>
@@ -199,15 +197,48 @@ export default function NotificationCard({
           </View>
         )}
 
+        <View row centerV spread marginT-s3>
+          <Text text90 grey40>
+            {formatTime(notification.time)}
+          </Text>
+        </View>
+
         <View row centerV marginT-s2>
-          <View flex>
-            <Text text100 grey40>
-              Toque para {notification.hasSentToWebhook ? 'reenviar' : 'enviar'}{' '}
-              webhook
+          <TouchableOpacity
+            onPress={handleSendWebhook}
+            flex
+            marginR-s2
+            activeOpacity={0.8}
+            style={{
+              backgroundColor: notification.hasSentToWebhook ? '#10b981' : '#6366f1',
+              borderRadius: 8,
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text text90 white style={{fontWeight: '500'}}>
+              {notification.hasSentToWebhook ? '🔄 Reenviar' : '📤 Enviar'} Webhook
             </Text>
-          </View>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            onPress={handleDelete}
+            activeOpacity={0.8}
+            style={{
+              backgroundColor: '#ef4444',
+              borderRadius: 8,
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: 80,
+            }}>
+            <Text text90 white style={{fontWeight: '500'}}>
+              🗑️ Excluir
+            </Text>
+          </TouchableOpacity>
         </View>
       </Card>
-    </TouchableOpacity>
   );
 }

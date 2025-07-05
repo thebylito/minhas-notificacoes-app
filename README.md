@@ -14,9 +14,10 @@ Um aplicativo React Native moderno para gerenciar e monitorar notificações do 
 
 ## 📸 Screenshots
 
-<div align="center">
-  <img src="./doc/image.png" alt="Tela Principal" width="300" />
-  <img src="./doc/image2.png" alt="Configurações" width="300" />
+<div align="center" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+  <img src="./doc/image.png" alt="Tela Principal" width="400" />
+  <img src="./doc/image2.png" alt="Configurações" width="100%" />
+  <img src="./doc/image3.png" alt="Configurações" width="400" />
 </div>
 
 ## 🚀 Tecnologias Utilizadas
@@ -39,6 +40,7 @@ Um aplicativo React Native moderno para gerenciar e monitorar notificações do 
 ## 🛠 Instalação
 
 1. **Clone o repositório**
+
    ```bash
    git clone https://github.com/thebylito/minhas-notificacoes.git
    cd minhas-notificacoes
